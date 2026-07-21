@@ -109,9 +109,16 @@ class ServicioCitasImplTest {
 	@DisplayName("Un servicio pesado que inicia a las 07:00 se rechaza con HorarioNoPermitidoException")
 	void agendarServicioPesadoALas07() {
 		// Arrange
-
+		String zafiroPlaca = "ANA-525";
+		LocalDateTime inicio = LocalDateTime.of(2026, 9, 15, 7, 0);
+		Mecanico mecanico = new Mecanico();
+		mecanico.setId(1L);
+		mecanico.setEspecialidad(TipoServicio.REPARACION_MOTOR);
+		when(repositorioMecanicos.findById(1L)).thenReturn(Optional.of(mecanico));
 
 		// Act y Assert
+		assertThrows(HorarioNoPermitidoException.class, () ->
+				servicioCitas.agendarCita(1L, zafiroPlaca, TipoServicio.REPARACION_MOTOR, inicio));
 
 	}
 
@@ -119,10 +126,23 @@ class ServicioCitasImplTest {
 	@DisplayName("Un servicio pesado que inicia a las 08:00 se acepta y se guarda")
 	void agendarServicioPesadoALas08() {
 		// Arrange
+		String zafiroPlaca = "ANA-525";
+		LocalDateTime ahora = LocalDateTime.of(2026, 9, 14, 8, 0);
+		LocalDateTime inicio = LocalDateTime.of(2026, 9, 15, 8, 0);
+		Mecanico mecanico = new Mecanico();
+		mecanico.setId(1L);
+		mecanico.setEspecialidad(TipoServicio.REPARACION_MOTOR);
+		when(proveedorFechaHora.ahora()).thenReturn(ahora);
+		when(repositorioMecanicos.findById(1L)).thenReturn(Optional.of(mecanico));
+		when(repositorioCitas.findByMecanicoIdAndEstado(1L, EstadoCita.PROGRAMADA)).thenReturn(List.of());
+		when(repositorioCitas.save(any(Cita.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		// Act
+		Cita cita = servicioCitas.agendarCita(1L, zafiroPlaca, TipoServicio.REPARACION_MOTOR, inicio);
 
 		// Assert
+		assertEquals(EstadoCita.PROGRAMADA, cita.getEstado());
+		verify(repositorioCitas).save(any(Cita.class));
 
 	}
 
@@ -130,12 +150,23 @@ class ServicioCitasImplTest {
 	@DisplayName("Un servicio pesado que inicia a las 11:00 se acepta y se guarda")
 	void agendarServicioPesadoALas11() {
 		// Arrange
-
+		String zafiroPlaca = "ANA-525";
+		LocalDateTime ahora = LocalDateTime.of(2026, 9, 14, 8, 0);
+		LocalDateTime inicio = LocalDateTime.of(2026, 9, 15, 11, 0);
+		Mecanico mecanico = new Mecanico();
+		mecanico.setId(1L);
+		mecanico.setEspecialidad(TipoServicio.REPARACION_MOTOR);
+		when(proveedorFechaHora.ahora()).thenReturn(ahora);
+		when(repositorioMecanicos.findById(1L)).thenReturn(Optional.of(mecanico));
+		when(repositorioCitas.findByMecanicoIdAndEstado(1L, EstadoCita.PROGRAMADA)).thenReturn(List.of());
+		when(repositorioCitas.save(any(Cita.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		// Act
-
+		Cita cita = servicioCitas.agendarCita(1L, zafiroPlaca, TipoServicio.REPARACION_MOTOR, inicio);
 
 		// Assert
+		assertEquals(EstadoCita.PROGRAMADA, cita.getEstado());
+		verify(repositorioCitas).save(any(Cita.class));
 
 	}
 
@@ -143,10 +174,16 @@ class ServicioCitasImplTest {
 	@DisplayName("Un servicio pesado a las 12:00 se rechaza con HorarioNoPermitidoException")
 	void agendarServicioPesadoALas12() {
 		// Arrange
-
+		String zafiroPlaca = "ANA-525";
+		LocalDateTime inicio = LocalDateTime.of(2026, 9, 15, 12, 0);
+		Mecanico mecanico = new Mecanico();
+		mecanico.setId(1L);
+		mecanico.setEspecialidad(TipoServicio.REPARACION_MOTOR);
+		when(repositorioMecanicos.findById(1L)).thenReturn(Optional.of(mecanico));
 
 		// Act y Assert
-
+		assertThrows(HorarioNoPermitidoException.class, () ->
+				servicioCitas.agendarCita(1L, zafiroPlaca, TipoServicio.REPARACION_MOTOR, inicio));
 	}
 
 	@Test

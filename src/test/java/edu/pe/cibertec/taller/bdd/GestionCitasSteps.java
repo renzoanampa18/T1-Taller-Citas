@@ -38,6 +38,7 @@ public class GestionCitasSteps {
 
 	@Before
 	public void inicializar() {
+
 		repositorioMecanicos = mock(RepositorioMecanicos.class);
 		repositorioCitas = mock(RepositorioCitas.class);
 		proveedorFechaHora = mock(ProveedorFechaHora.class);
@@ -45,11 +46,13 @@ public class GestionCitasSteps {
 		servicioCitas = new ServicioCitasImpl(repositorioMecanicos, repositorioCitas,
 				proveedorFechaHora, servicioNotificaciones);
 		when(proveedorFechaHora.ahora()).thenReturn(LocalDateTime.of(2026, 9, 14, 8, 0));
+
 	}
 
 	// TODO: implementar aqui los pasos de los escenarios con
 	@Given("un mecanico con especialidad MANTENIMIENTO_LIGERO disponible")
 	public void unMecanicoConEspecialidadMantenimientoLigeroDisponible() {
+
 		String zafiroEspecialidad = "MANTENIMIENTO_LIGERO";
 		Mecanico mecanico = new Mecanico();
 		mecanico.setId(1L);
@@ -59,26 +62,34 @@ public class GestionCitasSteps {
 		when(repositorioMecanicos.findById(1L)).thenReturn(Optional.of(mecanico));
 		when(repositorioCitas.findByMecanicoIdAndEstado(1L, EstadoCita.PROGRAMADA)).thenReturn(List.of());
 		when(repositorioCitas.save(any(Cita.class))).thenAnswer(inv -> inv.getArgument(0));
+
 	}
 
 	@When("se agenda un MANTENIMIENTO_LIGERO para la placa {string} el 15 de setiembre de 2026 a las 09:00")
 	public void seAgendaUnMantenimientoLigero(String placa) {
+
 		citaResultado = servicioCitas.agendarCita(1L, placa, TipoServicio.MANTENIMIENTO_LIGERO,
 				LocalDateTime.of(2026, 9, 15, 9, 0));
+
 	}
 
 	@Then("la cita queda en estado PROGRAMADA")
 	public void laCitaQuedaEnEstadoProgramada() {
+
 		assertEquals(EstadoCita.PROGRAMADA, citaResultado.getEstado());
+
 	}
 
 	@Then("se notifica el agendamiento")
 	public void seNotificaElAgendamiento() {
+
 		verify(servicioNotificaciones, times(1)).notificarCitaAgendada(any(Cita.class));
+
 	}
 
 	@Given("un mecanico que ya tiene una cita programada de 10:00 a 12:00 el 15 de setiembre de 2026")
 	public void unMecanicoQueYaTieneUnaCitaProgramada() {
+
 		Mecanico mecanico = new Mecanico();
 		mecanico.setId(2L);
 		mecanico.setEspecialidad(TipoServicio.MANTENIMIENTO_LIGERO);
@@ -91,10 +102,12 @@ public class GestionCitasSteps {
 		when(repositorioMecanicos.findById(2L)).thenReturn(Optional.of(mecanico));
 		when(repositorioCitas.findByMecanicoIdAndEstado(2L, EstadoCita.PROGRAMADA)).thenReturn(List.of(citaExistente));
 		when(repositorioCitas.save(any(Cita.class))).thenAnswer(inv -> inv.getArgument(0));
+
 	}
 
 	@When("se intenta agendar una nueva cita con ese mecanico a las {int}:00")
 	public void seIntentaAgendarUnaNuevaCitaConEseMecanico(int hora) {
+
 		try {
 			citaResultado = servicioCitas.agendarCita(2L, "ANA-525", TipoServicio.MANTENIMIENTO_LIGERO,
 					LocalDateTime.of(2026, 9, 15, hora, 0));
@@ -102,15 +115,20 @@ public class GestionCitasSteps {
 		} catch (Exception e) {
 			excepcionCapturada = e;
 		}
+
 	}
 
 	@Then("se rechaza el agendamiento por horario ocupado")
 	public void seRechazaElAgendamientoPorHorarioOcupado() {
+
 		assertEquals(HorarioOcupadoException.class, excepcionCapturada.getClass());
+
 	}
 
 	@Then("la cita se agenda correctamente porque no hay superposicion")
 	public void laCitaSeAgendaCorrectamentePorqueNoHaySuperposicion() {
+
 		assertEquals(EstadoCita.PROGRAMADA, citaResultado.getEstado());
+
 	}
 }

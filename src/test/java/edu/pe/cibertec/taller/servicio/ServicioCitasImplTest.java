@@ -52,6 +52,7 @@ class ServicioCitasImplTest {
 	@Test
 	@DisplayName("Agendar una cita valida la guarda, notifica y la retorna en estado PROGRAMADA")
 	void agendarCitaExitosa() {
+
 		// Arrange
 		String zafiroPlaca = "ANA-525";
 		LocalDateTime ahora = LocalDateTime.of(2026, 9, 14, 8, 0);
@@ -74,11 +75,13 @@ class ServicioCitasImplTest {
 		assertEquals(1, cita.getDuracionHoras());
 		verify(repositorioCitas).save(any(Cita.class));
 		verify(servicioNotificaciones, times(1)).notificarCitaAgendada(any(Cita.class));
+
 	}
 
 	@Test
 	@DisplayName("Agendar con un mecanico inexistente lanza MecanicoNoEncontradoException")
 	void agendarConMecanicoInexistente() {
+
 		// Arrange
 		String zafiroPlaca = "ANA-525";
 		LocalDateTime inicio = LocalDateTime.of(2026, 9, 15, 10, 0);
@@ -87,11 +90,13 @@ class ServicioCitasImplTest {
 		// Act y Assert
 		assertThrows(MecanicoNoEncontradoException.class, () ->
 				servicioCitas.agendarCita(99L, zafiroPlaca, TipoServicio.CAMBIO_ACEITE, inicio));
+
 	}
 
 	@Test
 	@DisplayName("Agendar cuando la especialidad no coincide lanza EspecialidadIncorrectaException")
 	void agendarConEspecialidadIncorrecta() {
+
 		// Arrange
 		String zafiroPlaca = "ANA-525";
 		LocalDateTime inicio = LocalDateTime.of(2026, 9, 15, 10, 0);
@@ -103,11 +108,13 @@ class ServicioCitasImplTest {
 		// Act y Assert
 		assertThrows(EspecialidadIncorrectaException.class, () ->
 				servicioCitas.agendarCita(1L, zafiroPlaca, TipoServicio.REPARACION_MOTOR, inicio));
+
 	}
 
 	@Test
 	@DisplayName("Un servicio pesado que inicia a las 07:00 se rechaza con HorarioNoPermitidoException")
 	void agendarServicioPesadoALas07() {
+
 		// Arrange
 		String zafiroPlaca = "ANA-525";
 		LocalDateTime inicio = LocalDateTime.of(2026, 9, 15, 7, 0);
@@ -125,6 +132,7 @@ class ServicioCitasImplTest {
 	@Test
 	@DisplayName("Un servicio pesado que inicia a las 08:00 se acepta y se guarda")
 	void agendarServicioPesadoALas08() {
+
 		// Arrange
 		String zafiroPlaca = "ANA-525";
 		LocalDateTime ahora = LocalDateTime.of(2026, 9, 14, 8, 0);
@@ -149,6 +157,7 @@ class ServicioCitasImplTest {
 	@Test
 	@DisplayName("Un servicio pesado que inicia a las 11:00 se acepta y se guarda")
 	void agendarServicioPesadoALas11() {
+
 		// Arrange
 		String zafiroPlaca = "ANA-525";
 		LocalDateTime ahora = LocalDateTime.of(2026, 9, 14, 8, 0);
@@ -173,6 +182,7 @@ class ServicioCitasImplTest {
 	@Test
 	@DisplayName("Un servicio pesado a las 12:00 se rechaza con HorarioNoPermitidoException")
 	void agendarServicioPesadoALas12() {
+
 		// Arrange
 		String zafiroPlaca = "ANA-525";
 		LocalDateTime inicio = LocalDateTime.of(2026, 9, 15, 12, 0);
@@ -184,12 +194,14 @@ class ServicioCitasImplTest {
 		// Act y Assert
 		assertThrows(HorarioNoPermitidoException.class, () ->
 				servicioCitas.agendarCita(1L, zafiroPlaca, TipoServicio.REPARACION_MOTOR, inicio));
+
 	}
 
 
 	@Test
 	@DisplayName("Cancelar con 24 horas o mas de anticipacion no genera penalidad")
 	void cancelarConAnticipacionSuficiente() {
+
 		// Arrange
 		Long zafiroIdCita = 1L;
 		LocalDateTime ahora = LocalDateTime.of(2026, 9, 14, 8, 0);
@@ -206,11 +218,13 @@ class ServicioCitasImplTest {
 		assertEquals(0.0, resultado.getMontoPenalidad());
 		assertEquals(EstadoCita.CANCELADA, cita.getEstado());
 		verify(servicioNotificaciones, times(1)).notificarCitaCancelada(cita);
+
 	}
 
 	@Test
 	@DisplayName("Cancelar con menos de 24 horas aplica una penalidad de 50.00")
 	void cancelarConAvisoTardio() {
+
 		// Arrange
 		Long zafiroIdCita = 1L;
 		LocalDateTime ahora = LocalDateTime.of(2026, 9, 14, 8, 0);
@@ -225,21 +239,25 @@ class ServicioCitasImplTest {
 
 		// Assert
 		assertEquals(50.0, resultado.getMontoPenalidad());
+
 	}
 
 
 	@Test
 	@DisplayName("Cancelar una cita ya atendida lanza CitaNoCancelableException")
 	void cancelarCitaYaAtendida() {
+
 		// Arrange
 		Long zafiroIdCita = 1L;
 		Cita cita = new Cita();
 		cita.setEstado(EstadoCita.ATENDIDA);
 		when(repositorioCitas.findById(zafiroIdCita)).thenReturn(Optional.of(cita));
 
+
 		// Act y Assert
 		assertThrows(CitaNoCancelableException.class, () ->
 				servicioCitas.cancelarCita(zafiroIdCita));
+
 	}
 
 }
